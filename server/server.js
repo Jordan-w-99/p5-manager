@@ -20,10 +20,54 @@ app.get('/', function (req, res) {
 	res.sendFile('index.html', { root: guiPath });
 });
 
-app.get('/api/p5rc', function (req, res) {
-	var p5rc = JSON.parse(fs.readFileSync('.p5rc', 'utf-8'));
-	var projects = p5rc.projects;
-	res.json({ projects: projects, collectionName: p5rc.name });
+app.get('/api/p5rc', async (req, res) => {
+	var p5rc = await JSON.parse(fs.readFileSync('.p5rc', 'utf-8'));
+
+	const projectTree = [
+		{
+			name: "collection1",
+			projects: [
+				{
+					name: "project1"
+				},
+				{
+					name: "project2"
+				},
+				{
+					name: "collection2",
+					projects: [
+						{
+							name: "project3"
+						},
+						{
+							name: "project4"
+						},
+						{
+							name: "collection4",
+							projects: [
+								{
+									name: "project6"
+								},
+								{
+									name: "project7"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			name: "collection3",
+			projects: [
+				{
+					name: "project5"
+				}
+			]
+		}
+	]
+
+	res.json(projectTree);
 });
 
 app.use('/', express.static(currentPath));

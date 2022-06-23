@@ -1,10 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  import { push, location } from 'svelte-spa-router';
+  import Collection from "./Collection.svelte";
 
   let isActive = false;
   let loaded = false;
-  let p5rc;
+  let projectTree;
 
   const fetchData = async () => {
     const response = await fetch('/api/p5rc');
@@ -15,17 +15,13 @@
     isActive = !isActive;
   }
 
-  function handleRouteChange(to) {
-    push(to);
-    isActive = false;
-  }
-
   onMount(async () => {
     try {
-      p5rc = await fetchData();
+      projectTree = await fetchData();
+      console.log(projectTree);
       loaded = true;
     } catch (error) {
-      consle.error(error);
+      console.error(error);
     }
   });
 </script>
@@ -34,19 +30,9 @@
   <button class="toggle" on:click="{handleToggle}">
     <img src="/assets/star.png" alt="star.png" />
   </button>
+
   {#if loaded}
-    <h2>{p5rc.collectionName}</h2>
-    <ul>
-      {#each p5rc.projects as project}
-        <li>
-          <span on:click="{() => handleRouteChange(`/${project}`)}"
-          class="{project === $location.slice(1) ? '-active' : ''}">
-          {project}
-          <span>
-          <a href="{`/${project}/index.html`}" target="_blank">↗</a>
-        </li>
-      {/each}
-    </ul>
+    <Collection name="collections" projects={projectTree} expanded path=''/>
   {/if}
 
   <div class="footer">
@@ -100,20 +86,6 @@
     -ms-transform: rotate(144deg);
     -webkit-transform: rotate(144deg);
     transform: rotate(144deg);
-  }
-
-  .sidebar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .sidebar ul li {
-    cursor: pointer;
-  }
-
-  .sidebar ul li span.-active {
-    color: #f07;
   }
 
   .sidebar ul li a {
